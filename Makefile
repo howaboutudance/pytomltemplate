@@ -28,7 +28,7 @@ test: FORCE
 	${DOCKER_RUN} -it ${SAMPLE_INTERACT}
 
 local-test: FORCE
-	tox -e py36
+	tox
 	mypy sample_module/
 
 FORCE:
