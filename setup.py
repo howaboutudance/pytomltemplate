@@ -9,7 +9,7 @@ setuptools.setup(
     version="0.0.1",
     # TODO: change name and email
     author="Micahel Penhallegon",
-    author_email="michael.penhallegon@bms.com",
+    author_email="mike@hematite.tech",
     # TODO: add a descriptive summary
     description="A small example package",
     long_description=long_description,
