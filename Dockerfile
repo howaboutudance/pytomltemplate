@@ -13,31 +13,21 @@
 # limitations under the License.
 
 FROM ghcr.io/howaboutudance/hematite/python-base:3.10 as source
-WORKDIR app
-COPY ./requirements.txt ./
-COPY ./setup.py ./ README.md ./
-RUN pip3 install -r requirements.txt
-COPY ./sample_module/. ./sample_module
+WORKDIR /app
+COPY ./pyproject.toml ./ README.md ./ ./poetry.lock ./
+RUN pip3 install poetry && poetry update --no-dev
+COPY ./src/sample_module/. ./src/sample_module
 
 FROM source as test
-COPY ./test ./test
-COPY ./tox.ini ./ ./requirements-dev.txt ./
-RUN pip3 install -r requirements-dev.txt
-CMD tox -e py38 && mypy sample_module/
+COPY ./src/test ./src/test ./src/conftest.py ./src/
+RUN poetry update
+CMD poetry run tox -e py38 && poetry run mypy sample_module/
 
 FROM source as builder
-RUN pip3 install wheel
-RUN python setup.py bdist_wheel
-
-FROM ghcr.io/howaboutudance/hematite/python-base:3.10 as interact
-COPY --from=builder /app/dist ./app/dist
-WORKDIR app
-COPY ./requirements-interact.txt ./
-RUN pip3 install -r requirements-interact.txt && pip3 install dist/example_pkg_mpenhallegon*
-CMD jupyter console
+RUN set +x && poetry build -f wheel && ls /app/dist
 
 FROM ghcr.io/howaboutudance/hematite/python-slim:3.10 as app
-COPY --from=builder /app/dist ./app/dist
-WORKDIR app
-RUN pip3 install dist/example_pkg_mpenhallegon*
+COPY --from=builder /app/dist/. /app/dist/
+WORKDIR /app
+RUN set +x && pip3 install dist/sample_module*
 CMD python -m sample_module

@@ -20,12 +20,10 @@ DOCKER_RUN=docker run
 VENV_VERSION_FOLDER := venv$(shell python3 --version | sed -ne 's/[^0-9]*\(\([0-9]*\.\)\{0,2\}\).*/\1/p' | sed -e "s/\.//g")
 
 init-env: FORCE
-	pyenv local system 3.9.8 3.8.12 3.7.12
-	python3 -m venv ./$(VENV_VERSION_FOLDER)
-	( \
-		source ./$(VENV_VERSION_FOLDER)/bin/activate; \
-		pip3 install -r requirements/dev.txt; \
-	)
+	pyenv local 3.10.0 3.9.8 3.8.12 3.7.12
+	pip3 install poetry
+	poetry update
+	poetry shell
 
 build: FORCE
 	${DOCKER_BUILD} --no-cache=true --target=app -t ${SAMPLE_TAG}
