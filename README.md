@@ -12,7 +12,7 @@ A template for creating python project using:
 As a template, this provides a series of files that needed to be modified:
 - setup.py
 - Makefile
-- Dockerfile.sample
+- Dockerfile
 - tox.ini
 
 ```TODO``` comments have been added for required sections to edit.
