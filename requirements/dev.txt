@@ -1,5 +1,2 @@
-pytest
-tox
-mypy
-wheel
-setuptools
+-r test.txt
+ipython
