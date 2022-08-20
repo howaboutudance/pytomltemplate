@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SAMPLE_TAG = hematite/pytemplate-docker
-SAMPLE_INTERACT = hematite/pytemplate-interact
-SAMPLE_TEST = hematite/pytemplate-test
+APP_NAME = pytemplate-docker
+APP_TAG = hematite/${APP_NAME}
+PACKAGE_NAME = sample_module
+PACKAGE_PATH = src/${PACKAGE_NAME}
 DOCKER_BUILD=docker build ./ -f Dockerfile
 DOCKER_RUN=docker run
 VENV_VERSION_FOLDER := venv$(shell python3 --version | sed -ne 's/[^0-9]*\(\([0-9]*\.\)\{0,2\}\).*/\1/p' | sed -e "s/\.//g")
@@ -26,21 +27,22 @@ init-env: FORCE
 	poetry shell
 
 build: FORCE
-	${DOCKER_BUILD} --no-cache=true --target=app -t ${SAMPLE_TAG}
+	${DOCKER_BUILD} --no-cache=true --target=app -t ${APP_TAG}
 
 run:
-	${DOCKER_RUN} ${SAMPLE_TAG}
+	${DOCKER_RUN} ${APP_TAG}
 
-interact: FORCE
-	${DOCKER_BUILD} --target=interact -t ${SAMPLE_TEST}
-	${DOCKER_RUN} -it ${SAMPLE_INTERACT}
+.PHONY: test
+test: lint FORCE
+	poetry run pytest
 
-test: FORCE
-	${DOCKER_BUILD} --target=test -t ${SAMPLE_INTERACT}
-	${DOCKER_RUN} -it ${SAMPLE_INTERACT}
+.PHONY: lint 
+lint:
+	poetry run mypy ${PACKAGE_PATH}
+	poetry run flake8 ${PACKAGE_PATH} src/test
 
-local-test: FORCE
-	tox
-	mypy sample_module/
+run-local: FORCE
+	cd ./src/
+	poetry run python ${PACKAGE_NAME}
 
 FORCE:
